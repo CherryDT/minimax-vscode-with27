@@ -352,6 +352,11 @@ export class MiniMaxProvider implements vscode.LanguageModelChatProvider {
       if (part instanceof vscode.LanguageModelTextPart) {
         text += part.value;
       } else if (part instanceof vscode.LanguageModelDataPart) {
+        // Skip VS Code-internal cache control hints (e.g. cache_control/ephemeral)
+        // that are meaningless to non-Anthropic models.
+        if (part.mimeType === "cache_control") {
+          continue;
+        }
         text += `[data:${part.mimeType};base64,${Buffer.from(part.data).toString("base64")}]`;
       } else if (
         part &&
